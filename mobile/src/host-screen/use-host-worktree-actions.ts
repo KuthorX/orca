@@ -1,5 +1,7 @@
 import { useCallback } from 'react'
 import type { useRouter } from 'expo-router'
+import { REPO_ADD_PROJECT_MOBILE_RUNTIME_CAPABILITY } from '../../../src/shared/protocol-version'
+import type { MobileWorkspaceRepo } from '../components/new-worktree-modal-types'
 import { floatingWorkspaceSessionPath } from '../session/floating-workspace'
 import { savePinnedIds } from '../storage/preferences'
 import type { useForgetHostClient } from '../transport/client-context'
@@ -18,8 +20,12 @@ export function useHostWorktreeActions(args: {
   client: RpcClient | null
   connState: ConnectionState
   embedded: boolean
-  fetchWorktrees: (options?: { allowDuringModal?: boolean }) => Promise<void>
+  fetchWorktrees: (options?: {
+    allowDuringModal?: boolean
+    force?: boolean
+  }) => Promise<Worktree[] | undefined>
   forgetHostClient: ReturnType<typeof useForgetHostClient>
+  hostCapabilities: readonly string[]
   hostId: string | undefined
   pathname: string
   router: ReturnType<typeof useRouter>
@@ -31,6 +37,7 @@ export function useHostWorktreeActions(args: {
     embedded,
     fetchWorktrees,
     forgetHostClient,
+    hostCapabilities,
     hostId,
     pathname,
     router,
@@ -46,6 +53,8 @@ export function useHostWorktreeActions(args: {
     setOptimisticActiveWorktreeIdentity,
     setPinnedIds,
     setRouteActionState,
+    setShowAddProject,
+    setShowPlusActionSheet,
     setWorktrees,
     worktrees
   } = state
@@ -62,6 +71,24 @@ export function useHostWorktreeActions(args: {
     newWorktreeModalVisibleRef.current = true
     modal.open()
   }, [])
+
+  // Why: hosts without the add-project capability never list it, so the + goes straight
+  // to the create form there — a one-row sheet would be an extra tap for nothing.
+  const addProjectSupported = hostCapabilities.includes(REPO_ADD_PROJECT_MOBILE_RUNTIME_CAPABILITY)
+
+  const openPlusActionSheet = useCallback(() => {
+    if (addProjectSupported) {
+      setShowPlusActionSheet(true)
+      return
+    }
+    openNewWorktreeModal()
+  }, [addProjectSupported, openNewWorktreeModal, setShowPlusActionSheet])
+
+  const openAddProject = useCallback(() => {
+    if (addProjectSupported) {
+      setShowAddProject(true)
+    }
+  }, [addProjectSupported, setShowAddProject])
 
   const setShowNewWorktreeVisible = useCallback((visible: boolean) => {
     setRouteActionState((current) => setHostRouteNewWorktreeVisible(current, visible))
@@ -205,6 +232,26 @@ export function useHostWorktreeActions(args: {
     [client, connState, hostId, navigateFromHostList]
   )
 
+  // Desktop parity for the standalone Add project: the handoff lands on the added repo's
+  // default checkout (main worktree), never a create-workspace form. A catalog with no main
+  // row for the repo leaves the user on the list, which by then shows the new project.
+  const handleProjectAdded = useCallback(
+    async (repo: MobileWorkspaceRepo) => {
+      const confirmed = await fetchWorktrees({ allowDuringModal: true, force: true })
+      const defaultCheckout = confirmed?.find(
+        (worktree) =>
+          worktree.repoId === repo.id &&
+          (worktree.isMainWorktree ??
+            (worktree.workspaceKind !== 'folder-workspace' &&
+              ['main', 'master'].includes(worktree.branch.replace(/^refs\/heads\//, ''))))
+      )
+      if (defaultCheckout) {
+        openWorktreeSession(defaultCheckout)
+      }
+    },
+    [fetchWorktrees, openWorktreeSession]
+  )
+
   const openFloatingWorkspace = useCallback(() => {
     // Why: no worktree.activate here — the floating sentinel has no worktree
     // record; session.tabs.list hydrates its host-owned tabs on open.
@@ -213,11 +260,14 @@ export function useHostWorktreeActions(args: {
 
   return {
     handleDeleteWorktree,
+    handleProjectAdded,
     handleRemoveHost,
     leaveHost,
     navigateFromHostList,
+    openAddProject,
     openFloatingWorkspace,
     openNewWorktreeModal,
+    openPlusActionSheet,
     openWorktreeSession,
     setShowNewWorktreeVisible,
     togglePin
