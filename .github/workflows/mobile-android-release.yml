@@ -7,6 +7,10 @@ on:
   push:
     tags:
       - 'mobile-android-v*'
+  # GitHub evaluates schedules on the default branch; this keeps a fresh installable APK available
+  # without creating a release tag every day.
+  schedule:
+    - cron: '17 2 * * *'
   workflow_dispatch:
     inputs:
       release_version:
