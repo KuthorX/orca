@@ -193,7 +193,7 @@ function AddProjectModalContent({
       title: 'Clone from URL',
       label: 'Repository URL',
       placeholder: 'https://github.com/owner/repo',
-      hint: "Cloned into the host's default projects folder. Large repositories can take a few minutes.",
+      hint: "Cloned into the host's default clone location. Large repositories can take a few minutes.",
       button: 'Clone repository'
     },
     create: {

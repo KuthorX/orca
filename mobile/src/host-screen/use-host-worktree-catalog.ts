@@ -49,6 +49,12 @@ export function useHostWorktreeCatalog(args: {
     worktreeCatalogRef
   } = state
 
+  useEffect(() => {
+    // A route can keep this controller mounted while switching hosts. Never let the next host
+    // await the previous host's catalog request.
+    fetchWorktreesInFlightRef.current = null
+  }, [client, hostId])
+
   const fetchWorktrees = useCallback(
     async (
       options: { allowDuringModal?: boolean; force?: boolean } = {}
@@ -148,7 +154,9 @@ export function useHostWorktreeCatalog(args: {
       try {
         return await request
       } finally {
-        fetchWorktreesInFlightRef.current = null
+        if (fetchWorktreesInFlightRef.current === request) {
+          fetchWorktreesInFlightRef.current = null
+        }
       }
     },
     [client, connState, hostId]
