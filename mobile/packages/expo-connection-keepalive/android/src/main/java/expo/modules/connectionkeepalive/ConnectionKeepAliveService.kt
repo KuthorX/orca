@@ -32,7 +32,9 @@ class ConnectionKeepAliveService : Service() {
     } else {
       startForeground(NOTIFICATION_ID, notification)
     }
-    return START_STICKY
+    // The service only protects a live JS client; restarting it alone would show
+    // a connection notification without recreating the WebSocket owner.
+    return START_NOT_STICKY
   }
 
   override fun onBind(intent: Intent?): IBinder? = null
