@@ -5,6 +5,8 @@ name: Mobile Android Release
 # immediately without waiting on iOS, and vice versa.
 on:
   push:
+    branches:
+      - main
     tags:
       - 'mobile-android-v*'
   # Daily APK artifacts without creating release tags (10:17 Asia/Shanghai).
