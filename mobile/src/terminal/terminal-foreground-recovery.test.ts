@@ -42,12 +42,12 @@ function createHarness(): RecoveryHarness {
 }
 
 describe('terminal foreground recovery', () => {
-  it('detects iOS foreground transitions after backgrounding or inactive states', () => {
+  it('detects native foreground transitions after backgrounding or inactive states', () => {
     expect(shouldRecoverTerminalOnAppStateChange('background', 'active', 'ios')).toBe(true)
     expect(shouldRecoverTerminalOnAppStateChange('inactive', 'active', 'ios')).toBe(true)
     expect(shouldRecoverTerminalOnAppStateChange('active', 'active', 'ios')).toBe(false)
     expect(shouldRecoverTerminalOnAppStateChange('active', 'background', 'ios')).toBe(false)
-    expect(shouldRecoverTerminalOnAppStateChange('background', 'active', 'android')).toBe(false)
+    expect(shouldRecoverTerminalOnAppStateChange('background', 'active', 'android')).toBe(true)
   })
 
   it('forces an initialized active terminal to replay scrollback after foregrounding', () => {
