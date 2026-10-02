@@ -8,6 +8,7 @@ apply from: expoModulesCorePlugin
 applyKotlinExpoModulesCorePlugin()
 useCoreDependencies()
 useExpoPublishing()
+useDefaultAndroidSdkVersions()
 
 android {
   namespace "expo.modules.connectionkeepalive"
