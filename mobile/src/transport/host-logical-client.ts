@@ -4,6 +4,10 @@ import { createStableLogicalRpcClient } from './stable-logical-rpc-client'
 import type { ConnectionLogSink, HostProfile } from './types'
 import { directPathForEndpoint } from './mobile-direct-endpoint-probe'
 import { startMobileEndpointLifecycle } from './mobile-endpoint-lifecycle'
+import {
+  acquireConnectionKeepAlive,
+  notifyConnectionKeepAliveForeground
+} from '@orca/expo-connection-keepalive'
 
 export function openHostLogicalClient(host: HostProfile, onLog: ConnectionLogSink): RpcClient {
   // Why: the stable facade owns app-visible RPC/subscription state while the
@@ -17,14 +21,19 @@ export function openHostLogicalClient(host: HostProfile, onLog: ConnectionLogSin
   }
 
   const endpointLifecycle = startMobileEndpointLifecycle(logical, host, onLog)
+  const releaseConnectionKeepAlive = acquireConnectionKeepAlive()
   endpointLifecycle.setForeground(AppState.currentState === 'active')
   const appStateSubscription = AppState.addEventListener('change', (state) => {
+    if (state === 'active') {
+      notifyConnectionKeepAliveForeground()
+    }
     endpointLifecycle.setForeground(state === 'active')
   })
   const closeLogical = logical.close
   logical.close = () => {
     appStateSubscription.remove()
     endpointLifecycle.stop()
+    releaseConnectionKeepAlive()
     closeLogical()
   }
   const notifyLogicalForeground = logical.notifyForeground

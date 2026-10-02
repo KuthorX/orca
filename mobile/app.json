@@ -73,7 +73,7 @@
       },
       "usesCleartextTraffic": true,
       "allowBackup": false,
-      "permissions": ["RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"],
+      "permissions": ["RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS", "POST_NOTIFICATIONS"],
       "package": "com.stably.orca.mobile",
       "versionCode": 18,
       "googleServicesFile": "./google-services.json"
