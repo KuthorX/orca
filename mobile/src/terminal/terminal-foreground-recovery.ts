@@ -26,7 +26,7 @@ export function shouldRecoverTerminalOnAppStateChange(
   platform: string
 ): boolean {
   return (
-    platform === 'ios' &&
+    (platform === 'ios' || platform === 'android') &&
     nextState === 'active' &&
     (previousState === 'background' || previousState === 'inactive')
   )

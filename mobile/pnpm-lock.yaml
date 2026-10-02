@@ -29,6 +29,9 @@ importers:
       '@noble/hashes':
         specifier: 1.8.0
         version: 1.8.0
+      '@orca/expo-connection-keepalive':
+        specifier: file:./packages/expo-connection-keepalive
+        version: file:packages/expo-connection-keepalive(expo@55.0.30)(react-native@0.83.10(patch_hash=44876634a8efbb0f2c3f66cd4332be170ec821d1cbfc0264ac80680983e8513d)(@babel/core@7.29.7)(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.8))(react@19.2.8)
       '@orca/expo-two-way-audio':
         specifier: file:./packages/expo-two-way-audio
         version: file:packages/expo-two-way-audio(expo@55.0.30)(react-native@0.83.10(patch_hash=44876634a8efbb0f2c3f66cd4332be170ec821d1cbfc0264ac80680983e8513d)(@babel/core@7.29.7)(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.8))(react@19.2.8)
@@ -1971,6 +1974,13 @@ packages:
 
   '@orca/expo-two-way-audio@file:packages/expo-two-way-audio':
     resolution: {directory: packages/expo-two-way-audio, type: directory}
+    peerDependencies:
+      expo: '*'
+      react: '*'
+      react-native: '*'
+
+  '@orca/expo-connection-keepalive@file:packages/expo-connection-keepalive':
+    resolution: {directory: packages/expo-connection-keepalive, type: directory}
     peerDependencies:
       expo: '*'
       react: '*'
@@ -9377,6 +9387,12 @@ snapshots:
   '@noble/hashes@1.8.0': {}
 
   '@orca/expo-two-way-audio@file:packages/expo-two-way-audio(expo@55.0.30)(react-native@0.83.10(patch_hash=44876634a8efbb0f2c3f66cd4332be170ec821d1cbfc0264ac80680983e8513d)(@babel/core@7.29.7)(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      expo: 55.0.30(e404b20c1cb2e50a7d80f2cede5c5264)
+      react: 19.2.8
+      react-native: 0.83.10(patch_hash=44876634a8efbb0f2c3f66cd4332be170ec821d1cbfc0264ac80680983e8513d)(@babel/core@7.29.7)(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.8)
+
+  '@orca/expo-connection-keepalive@file:packages/expo-connection-keepalive(expo@55.0.30)(react-native@0.83.10(patch_hash=44876634a8efbb0f2c3f66cd4332be170ec821d1cbfc0264ac80680983e8513d)(@babel/core@7.29.7)(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.8))(react@19.2.8)':
     dependencies:
       expo: 55.0.30(e404b20c1cb2e50a7d80f2cede5c5264)
       react: 19.2.8

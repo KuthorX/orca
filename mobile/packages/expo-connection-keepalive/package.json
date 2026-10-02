@@ -1,0 +1,16 @@
+{
+  "name": "@orca/expo-connection-keepalive",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Android foreground service for keeping Orca connections alive",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "pnpm --dir ../.. exec tsc --noEmit"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

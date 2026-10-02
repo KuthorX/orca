@@ -3,6 +3,7 @@ import {
   MobileRelayBackgroundGraceTimer,
   RELAY_BACKGROUND_GRACE_MS
 } from './mobile-relay-background-grace'
+import { RELAY_BACKGROUND_GRACE_MS as ANDROID_RELAY_BACKGROUND_GRACE_MS } from './mobile-relay-background-grace-window.android'
 
 describe('MobileRelayBackgroundGraceTimer', () => {
   afterEach(() => vi.useRealTimers())
@@ -27,6 +28,11 @@ describe('MobileRelayBackgroundGraceTimer', () => {
     expect(onExpired).toHaveBeenCalledOnce()
     await vi.advanceTimersByTimeAsync(RELAY_BACKGROUND_GRACE_MS)
     expect(onExpired).toHaveBeenCalledOnce()
+  })
+
+  it('uses the longer Android grace window', () => {
+    expect(ANDROID_RELAY_BACKGROUND_GRACE_MS).toBe(5 * 60_000)
+    expect(RELAY_BACKGROUND_GRACE_MS).toBe(30_000)
   })
 
   it('detects expiry on resume when the background timer was suspended', () => {
