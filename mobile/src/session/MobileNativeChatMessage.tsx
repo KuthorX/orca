@@ -6,6 +6,10 @@ import { MobileNativeChatMessageActionsSheet } from './MobileNativeChatMessageAc
 import { splitNativeChatBlocks } from '../../../src/shared/native-chat-tool-fold'
 import { selectActiveToolCall } from '../../../src/shared/native-chat-tool-activity'
 import { isImageRefBlock, isTextBlock } from '../../../src/shared/native-chat-types'
+import {
+  AGENT_SESSION_HOST_STATUS_COPY,
+  isAgentSessionHostStatusPresentation
+} from '../../../src/shared/agent-session-host-status-rows'
 import type { NativeChatBlock, NativeChatMessage } from '../../../src/shared/native-chat-types'
 import { MobileMarkdown } from '../components/MobileMarkdown'
 import { MobileNativeChatTurnStatus } from './MobileNativeChatTurnStatus'
@@ -29,6 +33,16 @@ function Prose({
   onLongPress?: () => void
 }): React.JSX.Element | null {
   if (isTextBlock(block)) {
+    if (isAgentSessionHostStatusPresentation(block.presentation)) {
+      return (
+        <Text
+          selectable={INLINE_TEXT_SELECTION}
+          style={[styles.hostNotice, { fontSize: TEXT_SIZE * fontScale }]}
+        >
+          {AGENT_SESSION_HOST_STATUS_COPY[block.presentation]}
+        </Text>
+      )
+    }
     // Inverted (user) bubbles use a fixed dark-on-light text rather than the
     // markdown renderer's light-on-dark palette.
     if (invert) {
@@ -74,8 +88,7 @@ function Prose({
   return null
 }
 
-// A plain View unless a long press is wired: a Pressable around every bubble would claim the
-// row's taps and show up as one more pressable in the tool-run tests.
+// Keep the existing responder hierarchy on platforms with inline selection.
 function Content({
   onLongPress,
   style,
@@ -147,10 +160,9 @@ function MobileNativeChatMessageImpl({
     !turnExpanded &&
     !toolsExpanded
   const showToolRun = tools.length > 0 && !settledToolsHidden
-  // Where inline selection is off (Android), a long press is how the text gets copied. The
-  // sheet is mounted only while open, so an idle row costs nothing for it.
+  // Mount selection UI only for the message being copied.
   const [actionsOpen, setActionsOpen] = useState(false)
-  // Why useCallback: the markdown memoises its text setup on this identity per render.
+  // Keep the memoized Markdown context stable as the message streams.
   const openActions = useCallback(() => setActionsOpen(true), [])
   const onLongPress = INLINE_TEXT_SELECTION ? undefined : openActions
 

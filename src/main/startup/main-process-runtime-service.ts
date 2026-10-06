@@ -32,6 +32,8 @@ import {
   AgentStatusObservedPaneIdentities,
   recordObservedAgentStatusPaneIdentity
 } from '../runtime/agent-status-observed-pane-identity'
+import { startAgentStateRulesLiveUpdates } from '../runtime/agent-state-rules/agent-state-rules-live-update'
+import { recordDurableCrashBreadcrumb } from '../crash-reporting/durable-crash-breadcrumb'
 
 export function getDesktopWindowStatus(): RuntimeDesktopWindowStatus {
   const activation = state.desktopActivationGate
@@ -120,6 +122,8 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
     checkHookAgentPresence: (paneKey) => agentHookServer.checkAgentPresence(paneKey),
     reconcileAgentStatusForEndedProcess: (paneKeys) =>
       agentHookServer.reconcileEndedProcessForPaneKeys(paneKeys),
+    dropAgentStatusForRemovedWorktree: (worktreeId, host) =>
+      agentHookServer.dropStatusEntriesForRemovedWorktree(worktreeId, host),
     canRecoverPersistentLocalPtys: () => getDaemonProvider() !== null,
     // Why: evaluated per call, not captured — the RPC server that owns the device registry is
     // constructed with this runtime and does not exist yet at this point.
@@ -162,6 +166,10 @@ export function initializeMainProcessRuntime(): OrcaRuntimeService {
     getScopeCatalog: () => sessionSearchScopeCatalogFromStore(store, LOCAL_EXECUTION_HOST_ID)
   })
   app.once('will-quit', () => sessionSearch?.dispose())
+  // Why here: this runs for the desktop and headless `orca serve`, and each evaluates its own panes.
+  startAgentStateRulesLiveUpdates(store, (rules) =>
+    recordDurableCrashBreadcrumb('agent_state_rules_active', rules)
+  )
   state.runtime = runtime
   agentHookServer.subscribeEnrichedStatus((enriched) =>
     recordObservedAgentStatusPaneIdentity(observedPaneIdentities, enriched.paneKey, runtime)
